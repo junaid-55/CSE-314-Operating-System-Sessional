@@ -117,6 +117,7 @@ main(){
         i=$((i+1))
     done
 
+    rm -rf $target_folder
 
     # heading of csv with respect to the command passed 
     heading="student_id,student_name,language,matched,not_matched"
@@ -199,8 +200,13 @@ main(){
 
                 # if nofc command not passed
                 if [ $nofc -eq 0 ]; then
+                    function_count=?
                     regex=$(get_function_regex $type)
-                    function_count=$(cat "$target_folder/$type/$roll/main.$ext" | grep -Pc $regex)
+                    if [[ $type == "Java" ]]; then
+                        function_count=$(cat "$target_folder/$type/$roll/Main.$ext" | grep -Pc $regex)
+                    else 
+                        function_count=$(cat "$target_folder/$type/$roll/main.$ext" | grep -Pc $regex)
+                    fi
                     data="$data,$function_count"
                 fi
 
