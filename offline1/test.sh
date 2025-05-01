@@ -184,6 +184,8 @@ main(){
                     comment_count=?
                     if [[ $type == "Python" ]]; then
                         comment_count=$(cat "$target_folder/$type/$roll/main.$ext" | grep "#" | wc -l)
+                    elif [[ $type == "Java" ]]; then
+                        comment_count=$(cat "$target_folder/$type/$roll/Main.$ext" | grep "//" | wc -l)
                     else 
                         comment_count=$(cat "$target_folder/$type/$roll/main.$ext" | grep "//" | wc -l)
                     fi
