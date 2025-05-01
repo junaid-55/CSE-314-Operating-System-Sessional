@@ -118,6 +118,8 @@ main(){
     done
 
     rm -rf $target_folder
+    mkdir -p $target_folder
+
 
     # heading of csv with respect to the command passed 
     heading="student_id,student_name,language,matched,not_matched"
