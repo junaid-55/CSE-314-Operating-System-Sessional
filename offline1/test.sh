@@ -175,7 +175,12 @@ main(){
 
                 # if nolc command not passed 
                 if [ $nolc -eq 0 ]; then
-                    line_count=$(wc -l < "$target_folder/$type/$roll/main.$ext")
+                    line_count=?
+                    if [[ $type == "Java" ]];then 
+                        line_count=$(wc -l < "$target_folder/$type/$roll/Main.$ext")
+                    else 
+                        line_count=$(wc -l < "$target_folder/$type/$roll/main.$ext")
+                    fi
                     data="$data,$line_count"
                 fi
 
