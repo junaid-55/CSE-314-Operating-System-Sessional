@@ -7,20 +7,13 @@
 #include <vector>
 #include <semaphore.h>
 #include "rand.hpp"
-#define MAX_WAITING_TIME 5
+#define MAX_WAITING_TIME 20
 
 using namespace std;
 struct Group;
 long long get_time();
 void write_output(const string &output);
 
-// int get_random_number(double lambda = 2.0)
-// {
-//     static thread_local std::random_device rd;
-//     static thread_local std::mt19937 generator(rd());
-//     std::poisson_distribution<int> poissonDist(lambda);
-//     return std::max(1, poissonDist(generator));
-// }
 struct Operative
 {
     int id;
@@ -91,6 +84,7 @@ void init()
     pthread_mutex_init(&output_lock, NULL);
     sem_init(&rd, 0, 1);
     sem_init(&wrt, 0, 1);
+    start_time = chrono::high_resolution_clock::now();
 }
 
 void *work(void *arg)
