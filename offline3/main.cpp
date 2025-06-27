@@ -6,20 +6,21 @@
 #include <unistd.h>
 #include <vector>
 #include <semaphore.h>
-// #include "rand.hpp"
+#include "rand.hpp"
+#define MAX_WAITING_TIME 5
 
 using namespace std;
 struct Group;
 long long get_time();
 void write_output(const string &output);
 
-int get_random_number(double lambda = 2.0)
-{
-    static thread_local std::random_device rd;
-    static thread_local std::mt19937 generator(rd());
-    std::poisson_distribution<int> poissonDist(lambda);
-    return std::max(1, poissonDist(generator));
-}
+// int get_random_number(double lambda = 2.0)
+// {
+//     static thread_local std::random_device rd;
+//     static thread_local std::mt19937 generator(rd());
+//     std::poisson_distribution<int> poissonDist(lambda);
+//     return std::max(1, poissonDist(generator));
+// }
 struct Operative
 {
     int id;
@@ -74,7 +75,7 @@ void init()
     for (int i = 0; i < N; ++i)
     {
         int group_id = i / M + 1;
-        int arrival_time = get_random_number();
+        int arrival_time = get_random_number()%MAX_WAITING_TIME + 1;
         operatives.push_back(Operative(i + 1, group_id, arrival_time));
     }
     for (int i = 0; i < N / M; ++i)
@@ -122,9 +123,11 @@ void *work(void *arg)
 void *intelligence_hub(void *arg)
 {
     int *staff_id = (int *)arg;
+    int length = get_random_number()%5+1;
     while (true)
     {
-        usleep(get_random_number() * 1000);
+        int random_wait_time = get_random_number() % 5 + 1;
+        usleep(random_wait_time * 1000);
         sem_wait(&rd);
         reader++;
         if (reader == 1)
@@ -132,10 +135,10 @@ void *intelligence_hub(void *arg)
         sem_post(&rd);
 
         write_output(
-            "Intelligence Hub " + to_string(*staff_id) + "  began reviewing logbook at time " + to_string(get_time()) +
+            "Intelligence Hub " + to_string(*staff_id) + " began reviewing logbook at time " + to_string(get_time()) +
             ". Operation completed = " + to_string(group_completed) + "\n"
         ); 
-        usleep(y * 1000);
+        usleep(length * 1000);
 
         sem_wait(&rd);
         reader--;
@@ -171,14 +174,16 @@ int main(int argc, char *argv[])
 
     pthread_t operative_threads[N];
     pthread_t staff_thread[staff_count];
-
-    for (int i = 0; i < N; ++i)
-        pthread_create(&operative_threads[i], NULL, work, &operatives[i]);
     int *staff_ids = new int[staff_count];
     for (int i = 0; i < staff_count; ++i){
         staff_ids[i] = i + 1;
         pthread_create(&staff_thread[i], NULL, intelligence_hub, &staff_ids[i]);
     }
+
+    for (int i = 0; i < N; ++i){
+        pthread_create(&operative_threads[i], NULL, work, &operatives[i]);
+    }
+
 
     for (int i = 0; i < N; ++i)
         pthread_join(operative_threads[i], NULL);
